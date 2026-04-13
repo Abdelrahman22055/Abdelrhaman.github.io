@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abdelrahman Mahmoud — Film Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+}
+
+.nav-logo-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover { color: #fff; }
+
+.hero {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.video-fallback {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+}
+
+/* ====================================
+   لو عندك فيديو showreel على Vimeo،
+   احذف الـ div.video-fallback فوق
+   وفك التعليق عن الـ iframe ده،
+   وحط الـ ID بتاعك بدل YOUR_VIDEO_ID
+   ==================================== */
+/*
+<iframe class="video-bg"
+  src="https://player.vimeo.com/video/YOUR_VIDEO_ID?background=1&autoplay=1&loop=1&muted=1"
+  frameborder="0" allow="autoplay; fullscreen">
+</iframe>
+*/
+
+.video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  pointer-events: none;
+  border: none;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+  font-weight: 300;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 1rem;
+}
+
+.hero-name {
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.4;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 50px;
+  background: #fff;
+  animation: scrollDown 1.5s ease infinite;
+}
+
+@keyframes scrollDown {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+.scroll-text {
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.section {
+  padding: 5rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.video-item {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background: #111;
+}
+
+.video-item:first-child {
+  grid-column: span 2;
+}
+
+.video-thumb {
+  position: relative;
+  padding-bottom: 56.25%;
+  overflow: hidden;
+}
+
+.video-item:first-child .video-thumb {
+  padding-bottom: 42%;
+}
+
+.video-thumb iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  border: none;
+  pointer-events: none;
+  transition: transform 0.6s ease;
+}
+
+.video-item:hover .video-thumb iframe {
+  transform: scale(1.04);
+}
+
+.video-info {
+  padding: 1rem 1.2rem;
+  background: #0d0d0d;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.video-cat {
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.video-title {
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.85);
+}
+
+.play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0);
+  transition: background 0.3s ease;
+  z-index: 2;
+}
+
+.video-item:hover .play-overlay {
+  background: rgba(0,0,0,0.3);
+}
+
+.play-btn {
+  width: 52px; height: 52px;
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.video-item:hover .play-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.play-btn::after {
+  content: '';
+  width: 0; height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 14px solid rgba(255,255,255,0.9);
+  margin-left: 4px;
+}
+
+.brands-section {
+  padding: 4rem 3rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.brands-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 2.5rem;
+}
+
+.brands-row {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.brand-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  transition: color 0.3s;
+}
+
+.brand-name:hover { color: rgba(255,255,255,0.6); }
+
+.about-section {
+  padding: 5rem 3rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-small {
+  font-size: 0.82rem;
+  line-height: 1.9;
+  color: rgba(255,255,255,0.4);
+  font-weight: 300;
+  max-width: 600px;
+}
+
+.contact-section {
+  padding: 5rem 3rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  text-align: center;
+}
+
+.contact-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 2rem;
+  display: block;
+}
+
+.contact-email {
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  display: block;
+  margin-bottom: 3rem;
+  transition: color 0.3s;
+}
+
+.contact-email:hover { color: #fff; }
+
+.contact-links {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.contact-link {
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.contact-link:hover { color: rgba(255,255,255,0.8); }
+
+footer {
+  padding: 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+footer span {
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+}
+
+.fade-in { opacity: 0; transform: translateY(20px); animation: fi 0.9s ease forwards; }
+@keyframes fi { to { opacity: 1; transform: translateY(0); } }
+.d1 { animation-delay: 0.2s; }
+.d2 { animation-delay: 0.45s; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo-text">Abdelrahman Mahmoud</div>
+  <ul class="nav-links">
+    <li><a href="#work">Work</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="video-fallback"></div>
+  <!-- ================================
+      <iframe src="https://player.vimeo.com/video/1086132484?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" width="1920" height="1080" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="Short"></iframe>
+       1. احذف الـ div.video-fallback فوق
+       2. فك التعليق عن الـ iframe ده
+      <iframe src="https://player.vimeo.com/video/970563581?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" width="1920" height="1080" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="South Africa // Travel Film"></iframe>
+       ================================ -->
+  <!--
+  <iframe class="video-bg"
+    src="https://player.vimeo.com/video/YOUR_VIDEO_ID?background=1&autoplay=1&loop=1&muted=1"
+    frameborder="0" allow="autoplay; fullscreen">
+  </iframe>
+  -->
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-title fade-in d1">Film Editor — Director</p>
+    <h1 class="hero-name fade-in d2">Abdelrahman<br>Mahmoud</h1>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span class="scroll-text">Scroll</span>
+  </div>
+</section>
+
+<!-- ================================
+     WORK SECTION
+     لإضافة فيديو جديد: انسخ أي
+     <iframe src="https://player.vimeo.com/video/970563581?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" width="1920" height="1080" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="South Africa // Travel Film"></iframe>
+     والعنوان والكاتيجوري
+     ================================ -->
+<div class="section" id="work">
+  <p class="section-label">Selected Work</p>
+  <div class="video-grid">
+
+    <!-- Featured / أول فيديو بياخد العرض كله -->
+    <div class="video-item">
+      <div class="video-thumb">
+        <iframe
+          src="https://player.vimeo.com/video/YOUR_VIDEO_ID_1?title=0&byline=0&portrait=0&color=ffffff"
+          allow="autoplay; fullscreen" allowfullscreen>
+        </iframe>
+        <div class="play-overlay"><div class="play-btn"></div></div>
+      </div>
+      <div class="video-info">
+        <span class="video-cat">Featured / Showreel</span>
+        <p class="video-title">Showreel 2024</p>
+      </div>
+    </div>
+
+    <!-- فيديو 2 -->
+    <div class="video-item">
+      <div class="video-thumb">
+        <iframe
+          src="https://player.vimeo.com/video/YOUR_VIDEO_ID_2?title=0&byline=0&portrait=0&color=ffffff"
+          allow="autoplay; fullscreen" allowfullscreen>
+        </iframe>
+        <div class="play-overlay"><div class="play-btn"></div></div>
+      </div>
+      <div class="video-info">
+        <span class="video-cat">Commercial</span>
+        <p class="video-title">اسم المشروع</p>
+      </div>
+    </div>
+
+    <!-- فيديو 3 -->
+    <div class="video-item">
+      <div class="video-thumb">
+        <iframe
+          src="https://player.vimeo.com/video/YOUR_VIDEO_ID_3?title=0&byline=0&portrait=0&color=ffffff"
+          allow="autoplay; fullscreen" allowfullscreen>
+        </iframe>
+        <div class="play-overlay"><div class="play-btn"></div></div>
+      </div>
+      <div class="video-info">
+        <span class="video-cat">Documentary</span>
+        <p class="video-title">اسم المشروع</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================
+     BRANDS SECTION
+     غير أسماء العملاء هنا
+     ================================ -->
+<div class="brands-section">
+  <p class="brands-label">Clients & Brands</p>
+  <div class="brands-row">
+    <span class="brand-name">Mirror Production</span>
+    <span class="brand-name">Brand 2</span>
+    <span class="brand-name">Brand 3</span>
+    <span class="brand-name">Brand 4</span>
+    <span class="brand-name">Brand 5</span>
+  </div>
+</div>
+
+<!-- ================================
+     ABOUT SECTION
+     غير النص هنا
+     ================================ -->
+<div class="about-section" id="about">
+  <p class="section-label">About</p>
+  <p class="about-small">
+    Film editor and director with over 6 years of experience. Currently at Mirror Production House, working across commercial, corporate, and documentary content.<br><br>
+    Tools: Adobe Premiere Pro · After Effects · DaVinci Resolve<br><br>
+    Available for freelance projects.
+  </p>
+</div>
+
+<!-- ================================
+     CONTACT SECTION
+     غير الـ email والـ social links
+     ================================ -->
+<div class="contact-section" id="contact">
+  <span class="contact-label">Get in touch</span>
+  <a href="mailto:abdo.mh771@gmail.com" class="contact-email">abdo.mh771@gmail.com</a>
+  <div class="contact-links">
+    <a href="https://vimeo.com/0abdelrahman0" class="contact-link" target="_blank">Vimeo</a>
+    <a href="#" class="contact-link">LinkedIn</a>
+    <a href="#" class="contact-link">Instagram</a>
+  </div>
+</div>
+
+<footer>
+  <span>© 2025 Abdelrahman Mahmoud</span>
+  <span>Film Editor — Director</span>
+</footer>
+
+<script>
+  // تشغيل الفيديو لما حد يضغط على الـ thumbnail
+  document.querySelectorAll('.video-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const iframe = item.querySelector('iframe');
+      if (iframe) {
+        iframe.style.pointerEvents = 'auto';
+        const src = iframe.src;
+        if (!src.includes('autoplay=1')) {
+          iframe.src = src + '&autoplay=1';
+        }
+      }
+    });
+  });
+
+  // smooth scroll للـ navigation
+  document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', e => {
+      const href = a.getAttribute('href');
+      if (href.startsWith('#')) {
+        e.preventDefault();
+        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
